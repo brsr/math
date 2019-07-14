@@ -1,2 +1,2 @@
 # math
-Jupyter notebooks for random math topics.
+Jupyter notebooks and PDFs for random math topics.

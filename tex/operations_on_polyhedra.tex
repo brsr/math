@@ -1,6 +1,7 @@
 \documentclass[12pt]{amsart}%[20pt]{extarticle}
 \usepackage{longtable, latexsym, amsmath, amsfonts, tikz}
-\usepackage{natbib, array}
+\usepackage{natbib, array}%, hyperref}
+
 \oddsidemargin=0in \evensidemargin=0in
 \textwidth=6.6in \textheight=8.7in
 
@@ -30,9 +31,10 @@ chamber4/.pic={
   }
 }
 
-\title{Operations on polyhedra}
-\author{B R S Recht}
-\date{December 2018}
+\title{Classification and Composition of Symmetry-preserving Operations on Polyhedra}
+\author{B R S Recht \\
+        brstone@gmail.com}
+\date{July 2020}
 
 \begin{document}
 
@@ -42,40 +44,49 @@ Operations on polyhedra to produce other polyhedra date back as far as Kepler.
 Conway defined a set of operations that could be performed on the Platonic
 solids to obtain the Archimedean and Catalan solids, and others added operators
 after him. Initially there was not much theory supporting operations on
-polyhedra, and the set of named operators on polyhedra was somewhat of a zoo. A 2017 paper by Brinkmann et. al. provides a framework. \cite{brinkmann}
+polyhedra: Conway himself barely spent a paragraph on it.\cite{conway}
 
-This text is an continuation of \cite{brinkmann} to find ways to quantify,
-analyze, and expand these operators. In particular, it focuses on operators on
-that can be described in terms of a linear operator on the counts of vertices,
-edges, and faces. These linear operators can be used to examine the composition
-and decomposition of operations on polyhedra. Such operators do not constitute
-all possible operations on polyhedra, or even all those that can be represented
-by available software, but they are an interesting subset of those
-operators with many nice aesthetic and geometric qualities.
+The first real advance in giving order to the realm of operations on polyhedra
+came in 2017. This paper defines a set of operations called local
+orientation-preserving and symmetry-preserving operations on polyhedra, or
+\textit{LOPSP}.\cite{brinkmann} A refined definition was later
+given.\cite{goetschalckx2020} An important subset of the LOPSPs is the local
+symmetry-preserving operations on polyhedra, or \textit{LSPs}. LOPSPs have an important
+invariant, the inflation factor $g$. If the number of edges on a polyhedron is
+$e$, the number of edges in the polyhedron operated on by a LOPSP is $ge$.
 
-The goal of this text is to explore two main topics:
+Later, the number of LSPs for each value of $g$ was
+calculated.\cite{goetschalckx2019} The calculation of the number of LOPSPs for
+each $g$ is likely forthcoming. While this would seem to be the finish line for
+this topic, there is substantial internal structure to the LOPSPs that is still
+unknown. The number of operators for each $g$ increases exponentially, reaching
+over a million operators by $g = 28$: any chance to find more structure among
+those operators is welcome.
+
+This text has two main goals:
 \begin{itemize}
-  \item Classification. The inflation factor introduced in \cite{brinkmann} is a good measure of the complexity of certain operators.
-  Are there more invariants that can be used to classify operators?
-  \item Relationships between operators. How can operators be composed? How can
-  an operator be decomposed into other operators?
+  \item Classification. Are there more invariants beyond $g$ that can be used
+  to classify LOPSPs?
+  \item Relationships between LOPSPs. How can operators be composed? How can
+  an operator be decomposed into other operators? How does this relate to their
+  invariants?
 \end{itemize}
 
 \section{Definitions}
 
 An \textit{abstract polytope} $P$ is a ranked poset satisfying the properties
 below. Elements of rank $0$ may be called \text{vertices}; of rank $1$,
-\textit{edges}; of rank $2$, \text{faces}. (In most literature on abstract
+\textit{edges}; of rank $2$, \text{faces}. In most literature on abstract
 polytopes all elements of the poset are called (abstract) faces, but since this
-work is primarily concerned with polyhedra, it would be confusing.) The order
+work is primarily concerned with polyhedra, it would be confusing. The order
 relation $<$ on the poset represents incidence between elements: for example,
 a face is incident on an edge, which is incident on a vertex.\cite{mcmullen}
 \begin{enumerate}
   \item $P$ contains a least element $\bot$ with rank $-1$ and a greatest
-  element $\top$ with rank $n$. ($n$ is the rank of the abstract polytope.)
+  element $\top$ with rank $n$. $n$ is the rank of the abstract polytope.
   \item Each flag of $P$ has the same length and includes the least and
-  greatest elements. (A flag is a series of incident elements from the least
-  element to the greatest)
+  greatest elements. A flag is a series of incident elements from the least
+  element to the greatest.
   \item $P$ is strongly connected: any flag can be changed into any other flag
   by changing one element of the flag at a time.
   \item $P$ satisfies the diamond property: if an element $A$ has rank $k-1$,
@@ -86,24 +97,21 @@ Occasionally a poset structure that violates one of these properties may be
 useful; these will be discussed as they appear. The skeleton of a polytope is
 the (possibly multi-) graph formed by its vertices and edges.
 The dual of an abstract polytope is simply the abstract polytope with its order
-and rank reversed. (This corresponds to the usual geometric notion of dual.)
+and rank reversed. This corresponds to the usual geometric notion of dual.
 
-An element $a$ of a poset with least element $\bot$ (and therefore an abstract
-polytope) is an \textit{atom} if $\bot < a$ and there is no $x$ such that
-$\bot < x < a$. A poset is \textit{atomistic} if every
-element can be described unambiguously as a unique set of atoms.
+An element $a$ of a poset with least element $\bot$ is an \textit{atom} if
+$\bot < a$ and there is no $x$ such that $\bot < x < a$. A poset is
+\textit{atomistic} if every element can be described unambiguously as a unique
+set of atoms. These definitions carry over to abstract polytopes.
 
 The $f$\textit{-vector} of a polytope is the vector of counts of elements of
 each rank. Normally the greatest and least elements are omitted (since they're
 always 1), and the vector has the form $(a_0, \ldots, a_{d-1})$ where $a_i$ is
-the count of elements of rank $i$. The \textit{extended} $f$-vector includes
-those elements: $(a_{-1}=1, a_0, \ldots, a_{d-1}, a_d=1)$. The vector is
-\textit{left/right half-extended} if only one of those endpoints is included.
-As such, the (extended) $f$-vector of the dual of a polytope is the (extended)
-$f$-vector of the original polytope, reversed. The $f$-polynomial is
-$F(x) = \sum_{i=-1}^d a_i x^{i+1}$. The \textit{Euler characteristic} of a
-polytope is the alternating sum of the elements of the $f$-vector:
-$\chi = a_0 - a_1 + a_2 \ldots$.
+the count of elements of rank $i$. As such, the $f$-vector of the dual of a
+polytope is the (extended) $f$-vector of the original polytope, reversed. The
+$f$-polynomial is $F(x) = \sum_{i=-1}^d a_i x^{i+1}$. The
+\textit{Euler characteristic} of a polytope is the alternating sum of the
+elements of the $f$-vector: $\chi = a_0 - a_1 + a_2 \ldots$.
 
 A \textit{realization} of an abstract polytope is an abstract polytope $P$
 mapped into a topological space, usually, but not necessarily, $\mathbb{R}^n$.
@@ -126,12 +134,12 @@ explicit consequences for polyhedra: \cite{grunbaum03}
 \end{itemize}
 The \textit{degree of a vertex} is the number of edges to which it is incident.
 The \textit{degree of a face} is the number of edges which are incident to it,
-i.e. its number of sides. (An edge of a polyhedron is always incident to 2
+i.e. its number of sides. An edge of a polyhedron is always incident to 2
 faces and 2 vertices, so defining degree for edges is not useful here, although
-it is for higher polytopes.)
+it is for higher polytopes.
 Abstract polyhedra permit faces of degree 2, called \textit{digons}. Digons are
 disallowed by many definitions of polyhedra, but appear in spherical polyhedra
-and regular maps (for example). Digons occur naturally in the study of
+and regular maps, for example. Digons occur naturally in the study of
 operations on polyhedra. The count of vertices, edges, and faces is be denoted
 $v, e, f$. The Euler characteristic is $\chi = v - e + f$. The count of
 vertices or faces of a certain degree is denoted $v_i$ and $f_i$ where $i$ is
@@ -148,8 +156,12 @@ For a more mundane example, Figure \ref{fig:circlesquare}, with digons and
 concave quadrilaterals, is a common decorative pattern: it appears on the
 author's bedspread, among other places.
 
-We won't make much use of abstract polyhedra directly, but we need them as a
-theoretical underpinning. A structure that resembles a polyhedron but does not
+This paper does not make much use of the poset structure of abstract polyhedra.
+Rather, it is used to give a coherent meaning to some of the more unusual
+features mentioned previously. We also avoid what Gr\"unbaum called the
+"original sin" of the theory of polyhedra: that of not properly defining what
+one means by "polyhedra".\cite{grunbaum03} A structure that is like a polyhedron
+but does not
 satisfy the axioms of an abstract polytope is here called a quasipolyhedron.
 Examples of quasipolyhedra include the monogonal dihedron ($f$-vector
 $[1,1,2]$), its dual the digonal hosohedron ($[2,1,1]$), and the monohedron
@@ -193,7 +205,7 @@ polyhedra that are chiral in $\mathbb{R}^3$ are not in $\mathbb{R}^4$.
 
 An \textit{acoptic polyhedron} is (loosely) a polyhedron that does not
 self-intersect. \cite{grunbaum99} Its faces are simple polygons with straight
-edges that do not self-intersect (although they may be concave). A
+edges that do not self-intersect, although they may be concave. A
 \textit{convex polyhedron} is an acoptic polyhedron that is convex: any line
 between points on the surface of the polyhedron is contained in the interior of
 the polyhedron. By Steinitz's theorem, the skeleton of every convex polyhedron
@@ -537,7 +549,7 @@ features. We choose to define $\$$ so that it produces a polyhedron where all
 degree-2 features have been removed. There may also be other ways to smooth a
 particular configuration involving a degree-2 feature that may have other
 benefits, e.g. Figure \ref{fig:weirdo},
-but $\$$ is the minimum-effort way to remove the degree-2 features.
+but $\$$ is a universally applicable way to remove the degree-2 features.
 
 \begin{figure}[!htbp]
 \begin{tikzpicture}
@@ -582,7 +594,7 @@ the operator such that it returns a proper polyhedra,
 stopping before it produces a quasipolyhedron.
 This ambiguity will not affect the rest of this text.
 
-With some odd exceptions (those in the last paragraph), the smoothing operator
+With the exceptions listed in the last paragraph, the smoothing operator
 $\$$ produces polyhedra where the minimum vertex and face degree is 3. Since
 the original polyhedron was required to be connected, this also means that the
 polyhedron has a 3-edge-connected skeleton. This is necessary but not
@@ -888,41 +900,34 @@ their respective edges. A similar method could be used to handle partial
 polyhedra: define an edge-centered diagram for edges where 2 faces meet, and
 for edges adjacent to only 1 face.
 
-\section{Other operations}
-
-Technically, LSPs and LOPSPs as defined in \cite{brinkmann} are operators on
-$\mathcal{P}_{3v}$. That excludes any operator that creates digons or degree-2
-vertices, as well as any operator that creates the kind of features that
-$\pounds$ removes, such as the Lozenge operator. It also excludes $r$,
-as we mentioned earlier.
-
-Some operators that do not preserve the topology of the seed polyhedron can be
-described as EROs. \texttt{leonardo} in Antiprism creates attractive
-hollowed-out polyhedra from seed polyhedra. The particular operation of
-\texttt{leonardo} can't be performed in \texttt{wythoff}, but a similar one can
-with the input string \texttt{[V, VF] 0\_1v1\_0v, 1v1f, 1V}. We call this the
-\textit{Hollow} operation. The resulting polyhedron is acoptic if the seed has
-positive curvature everywhere. If the seed had Euler characteristic 2 (genus
-0), the result has Euler characteristic $4-2f$ (genus ($f-1$)). One could also
-create operators that add arbitrary numbers of holes per edge. (Operators that
-add cross-caps, e.g. based on a self-intersecting polyhedron with Euler
-characteristic 1 such as the tetrahemihexahedron, may be possible. Such
-operators probably have more theoretical uses than aesthetic or practical
-ones, and their result would be hard to realize faithfully.)
-
-It can help to understand operators like the Hollow operation by considering
-two disjoint copies of the seed polyhedra that are then stitched together. We
-define an operator, \textit{$n$-copy}, as the operator that creates $n$
-disjoint copies of the seed. That said, the result of this operator is not a
-polyhedron (it's multiple polyhedra), and it is ambiguous how to represent it
-as a poset (specifically the maximal and minimal elements).
-
-If we want to get even more abstract, we can think of these more general
-topological operators as having the structure of a $\mathbb{N}$-module over a
-semiring, where addition is the disjoint union of polyhedra, multiplication is
-composition of operators, and a coefficient from $\mathbb{N} = {0, 1, ...}$
-represents creating disjoint copies of a polyhedron. Then, the module has an
-obvious homomorphism with the 3x3 matrices over $\mathbb{N}$.
+% \section{Other operations}
+% Some operators that do not preserve the topology of the seed polyhedron can be
+% described as EROs. \texttt{leonardo} in Antiprism creates attractive
+% hollowed-out polyhedra from seed polyhedra. The particular operation of
+% \texttt{leonardo} can't be performed in \texttt{wythoff}, but a similar one can
+% with the input string \texttt{[V, VF] 0\_1v1\_0v, 1v1f, 1V}. We call this the
+% \textit{Hollow} operation. The resulting polyhedron is acoptic if the seed has
+% positive curvature everywhere. If the seed had Euler characteristic 2 (genus
+% 0), the result has Euler characteristic $4-2f$ (genus ($f-1$)). One could also
+% create operators that add arbitrary numbers of holes per edge. (Operators that
+% add cross-caps, e.g. based on a self-intersecting polyhedron with Euler
+% characteristic 1 such as the tetrahemihexahedron, may be possible. Such
+% operators probably have more theoretical uses than aesthetic or practical
+% ones, and their result would be hard to realize faithfully.)
+%
+% It can help to understand operators like the Hollow operation by considering
+% two disjoint copies of the seed polyhedra that are then stitched together. We
+% define an operator, \textit{$n$-copy}, as the operator that creates $n$
+% disjoint copies of the seed. That said, the result of this operator is not a
+% polyhedron (it's multiple polyhedra), and it is ambiguous how to represent it
+% as a poset (specifically the maximal and minimal elements).
+%
+% If we want to get even more abstract, we can think of these more general
+% topological operators as having the structure of a $\mathbb{N}$-module over a
+% semiring, where addition is the disjoint union of polyhedra, multiplication is
+% composition of operators, and a coefficient from $\mathbb{N} = {0, 1, ...}$
+% represents creating disjoint copies of a polyhedron. Then, the module has an
+% obvious homomorphism with the 3x3 matrices over $\mathbb{N}$.
 
 \section{Invariants of EROs}
 We already mentioned the inflation factor for EROs. \cite{brinkmann}
@@ -1181,15 +1186,23 @@ so far.
 any EROs of type 0. Correspondingly, if an ERO has type 0,
 its decomposition must contain at least one type 0 ERO.
 \item There are no type 1 EROs with $g=2$, so therefore type 1 EROs
-  with $g=2p$, where p is prime, are irreducible in terms of EROs.
-  (However, it may be reducible into an AERO or an operator on $\mathcal{W}$.)
+  with $g=2p$, where p is prime, are irreducible in terms of EROs. The same
+  applies to type 1 EROs with $g=3p$, since there are also no type 1 EROs with
+  $g=3$. However, such operators may be reducible into an AERO or
+  an operator on $\mathcal{W}$.
+\item Dirichlet's prime number theorem says for any coprime positive integers
+  $a$ and $b$, and $n$ another positive integer, the arithmetic sequence $an+b$
+  contains an infinite number of primes.\cite{selberg} The $M_n$ sequence of
+  LSPs has $g = 3n+1$, satisfying Dirichlet's theorem. Therefore there are an
+  infinite number of irreducible $M_n$ operators.
 \item $\Box_{n,m}$ that correspond to the Gaussian primes,
   and $\Delta_{n,m}$ that correspond to the Eisenstein primes,
-  are irreducible. (Proof below.)
-  As a consequence of this, there are an infinite number of irreducible EROs.
+  are irreducible in terms of other LOPSPs. (Proof below.)
 \end{itemize}
+As a consequence of the last two points, there are an infinite number of
+irreducible LSPs, and also of irreducible LOPSPs that are not LSPs.
 
-Proof of the last statement: A Gaussian integer $a + bi$ is prime if its
+Proof of the last point: A Gaussian integer $a + bi$ is prime if its
 square norm $a^2 + b^2$ is prime or the square of a prime. In the first
 case, that prime has the form $p=4k+1$; in the latter, $p=4k+3$.
 Remember that the squared norm of the integer is just the inflation factor $g$
@@ -1246,8 +1259,7 @@ $g = 3k + 2$, but $g = b+ b' + 1 = 3b+1$:
 there is no simultaneous integer solution to both equations,
 so we have a contradiction, and $\Delta_{n,m}$ is irreducible.
 
-\section{$\mathcal{P}$, $\mathcal{P}_{3}$, and $\mathcal{P}_{3v}$}
-
+\section{Uniqueness of reductions}
 There are some polyhedra or operators that have non-unique reductions.
 However, all known examples involve degree-2 features or operators that
 do not produce polyhedra in $\mathcal{P}_{3v}$. For example,
@@ -1270,37 +1282,98 @@ already know that $\mathcal{P}_{3v}$ is special because of Steinitz's theorem,
 but it's not clear how that would lead to the proofs we would need perform
 here.
 
-\section{Lower polytopes}
+\section{Operations that are not quite LOPSPs}
+Loosening up the restrictions of LOPSPs allows for some interesting operations.
+\texttt{leonardo} in Antiprism creates attractive hollowed-out polyhedra from
+seed polyhedra.\cite{antiprism} The particular operation of \texttt{leonardo}
+can't be performed  in \texttt{wythoff}, but a similar one can with the input
+string \texttt{[V, VF] 0\_1v1\_0v, 1v1f, 1V}. We call this the \textit{Hollow}
+operation. The resulting polyhedron is acoptic if the seed is
+convex. If the seed had Euler characteristic 2 (genus 0), the result has Euler
+characteristic $4-2f$ (genus ($f-1$)). This operation has a $L_x$ representation
+and a matrix $M_x$, although the entire third column of the matrix is 0. This
+operation preserves the symmetry and orientation of the seed, but it is not
+local in the sense used in the definition of LOPSPs.
 
-Examining operations on the lower polytopes may help us form analogies.
-There is only one abstract polytope of each rank -1, 0, and 1:
-the null polytope, a single vertex, and a single edge. Therefore,
-given a rank $k \le 1$, there is only one operator on that set of abstract
-polytopes, which is the identity operator.
+Consider the operation of creating a prism from a $n$-sided polygon. Let the
+right-extended $f$-vector of the polygon be $n, n, 1$. The right-extended
+$f$-vector of the prism is then equal to
+\begin{equation}
+  \begin{bmatrix}
+  2 & 0 & 0 \\
+  1 & 2 & 0 \\
+  0 & 1 & 2 \\
+  0 & 0 & 1 \end{bmatrix}
+  \begin{bmatrix} n \\  n \\ 1 \end{bmatrix}
+  = \begin{bmatrix} 2n \\ 3n \\ 2+n \\ 1 \end{bmatrix}.
+\end{equation}
+This is, of course, slightly cheating, since we have redefined the
+transformation matrix to accomodate the operation. However, it is no worse than
+the AEROs defined earlier. This operation, while again not being "local",
+preserves symmetry: the symmetry group of the seed polygon is clearly a
+subgroup of the result polyhedron's symmetry group.
 
-The polygons are the polytopes of rank 2. A polygon has an equal number of
-vertices and edges, and a (finite) abstract polygon is uniquely determined by
-its count of edges (or vertices). (There's also the apeirogon, with an infinite
-number of vertices and edges, which is also unique.) Therefore, abstract
-polygons are self-dual. An abstract polygon may have 2 or more vertices.
-Therefore, the operators on abstract polygons correspond to the operators on
-the integers 2 or greater. (Monogons violate the diamond property, so they're
-not abstract polygons. If we were to include those, the operators would
-correspond to operators on the integers 1 and greater.
-This analysis is basically the same whether they're included or not.)
+As described in Coxeter (123-124)\cite{coxeter73}, one can extend this idea of
+prisms to polytopes. Consider an operation that acts on a seed $n$-polytope and
+produces an $(n+1)$-polytope by a higher-dimension prism, extruding the seed out
+into an additional dimension. For example, one way to create a hypercube is to
+apply this operator to a cube. In its aspect as an operation from polyhedra to
+4-polytopes, the matrix transforming the right-extended $f$-vectors is
+\begin{equation}
+  \begin{bmatrix}
+  2 & 0 & 0 & 0 \\
+  1 & 2 & 0 & 0 \\
+  0 & 1 & 2 & 0 \\
+  0 & 0 & 1 & 2 \\
+  0 & 0 & 0 & 1 \\
+  \end{bmatrix}.
+\end{equation}
 
-In the set of abstract polygons, the analog to EROs is the operators that
-multiply the number of edges by some integer $k \ge 1$. The symmetry group of
-an $n$-edged polygon is, by definition, the dihedral group $D_n$, and $D_n$ is
-a subgroup of $D_{kn}$, so like the EROs these operators also preserve or
-increase the symmetry of the polygon. Furthermore, the operator can be reduced
-into a series of operators as per the integer factorization of $k$, and these
-operators commute with each other.
 
-One can also make analogy with the alternating EROs by considering polygons
-with an even number of sides. Essentially, these are the extension of the last
-paragraph to $k = j + \frac{1}{2}$, $j \ge 0$. (Including monogons may help
-here: for the operator where $k=1/2$, a digon would map to a monogon.)
+%It can help to understand operators like
+%the Hollow operation by considering two disjoint copies of the seed polyhedra
+%that are then stitched together. One can define operator, \textit{$n$-copy}, as
+%the operator that creates $n$ disjoint copies of the seed. That said, the result
+%of this operator is not a polyhedron (it's multiple polyhedra), and it is
+%unclear how to represent it as a poset
+%(specifically the maximal and minimal elements).
+
+% One could also create operators that add arbitrary numbers of holes per edge.
+% (Operators that add cross-caps, e.g. based on a self-intersecting polyhedron
+% with Euler characteristic 1 such as the tetrahemihexahedron, may be possible.
+% Such operators probably have more theoretical uses than aesthetic or practical
+% ones, and their result would be hard to realize faithfully.)
+%
+% \section{Lower polytopes}
+% Examining operations on the lower polytopes may help us form analogies.
+% There is only one abstract polytope of each rank -1, 0, and 1:
+% the null polytope, a single vertex, and a single edge. Therefore,
+% given a rank $k \le 1$, there is only one operator on that set of abstract
+% polytopes, which is the identity operator.
+%
+% The polygons are the polytopes of rank 2. A polygon has an equal number of
+% vertices and edges, and a (finite) abstract polygon is uniquely determined by
+% its count of edges (or vertices). (There's also the apeirogon, with an infinite
+% number of vertices and edges, which is also unique.) Therefore, abstract
+% polygons are self-dual. An abstract polygon may have 2 or more vertices.
+% Therefore, the operators on abstract polygons correspond to the operators on
+% the integers 2 or greater. (Monogons violate the diamond property, so they're
+% not abstract polygons. If we were to include those, the operators would
+% correspond to operators on the integers 1 and greater.
+% This analysis is basically the same whether they're included or not.)
+%
+% In the set of abstract polygons, the analog to EROs is the operators that
+% multiply the number of edges by some integer $k \ge 1$. The symmetry group of
+% an $n$-edged polygon is, by definition, the dihedral group $D_n$, and $D_n$ is
+% a subgroup of $D_{kn}$, so like the EROs these operators also preserve or
+% increase the symmetry of the polygon. Furthermore, the operator can be reduced
+% into a series of operators as per the integer factorization of $k$, and these
+% operators commute with each other.
+%
+% One can also make analogy with the alternating EROs by considering polygons
+% with an even number of sides. Essentially, these are the extension of the last
+% paragraph to $k = j + \frac{1}{2}$, $j \ge 0$. (Including monogons may help
+% here: for the operator where $k=1/2$, a digon would map to a monogon.)
 
 \section{Conclusion}
 With $L_x$, $M_x$, $\Lambda_x$, and the constituent parts of those,
@@ -1531,11 +1604,11 @@ and $b'_i$ are 0.
     1 & 2 & 0 \\
     0 & 7 & 0 \\
     1 & 3 & 0 \end{bmatrix}$& Hollow & & & & ${k=2}$, ${b_5 = 2}$, ${b'_4 = 3}$ &\texttt{n}\ddag
-    \\ \hline
-    $\begin{bmatrix}
-    n & 0 & 0 \\
-    0 & n & 0 \\
-    0 & 0 & n \end{bmatrix}$& $n$-Copy & $d$ ($n$-Copy) = ($n$-Copy) $d$ & $d$ ($n$-Copy) = ($n$-Copy) $d$ & $n$-Copy & &\texttt{n}, \ddag for $n>1$
+    % \\ \hline
+    % $\begin{bmatrix}
+    % n & 0 & 0 \\
+    % 0 & n & 0 \\
+    % 0 & 0 & n \end{bmatrix}$& $n$-Copy & $d$ ($n$-Copy) = ($n$-Copy) $d$ & $d$ ($n$-Copy) = ($n$-Copy) $d$ & $n$-Copy & &\texttt{n}, \ddag for $n>1$
 \end{longtable}
 
 \section{Cohorts of LSPs and LOPSPs}
